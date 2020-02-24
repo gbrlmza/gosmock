@@ -1,16 +1,18 @@
 # gosmock: go simple mock
 
-A simple & easy to use mocking tool
+A simple & easy to use mocking tool for go interfaces
 
 ## Why?
 
-Sometimes you don't need a whole testing framework like [mock](https://github.com/golang/mock) or [testify](https://github.com/stretchr/testify). Also was used to learn & practice some concepts of [reflection](https://golang.org/pkg/reflect/) in go.
+Sometimes you don't need a whole testing framework like [mock](https://github.com/golang/mock) or [testify](https://github.com/stretchr/testify).
+
+Also was used to learn & practice some concepts of [reflection](https://golang.org/pkg/reflect/) in go.
 
 ## Examples
 
 ### Basic
 
-The mocked interface
+The mocked interface. You only need to use composition, adding a `gosmock.MockTool` to the mocked struct and for each func add a line to get the mocked response. That's it. 
 
 ```go
 package main 
@@ -81,7 +83,7 @@ func TestParam_AddItem(t *testing.T) {
 		Times(1)
 
 	// Since we are using mocks with params, the mocked response for a given set of param
-	// takes precedence over the order ot the mocked response.
+	// takes precedence over the order of the mocked response.
 	id, err := simple.AddItem("Name2", 20)
 	assert.Equal(t, "200", id)
 	assert.NilError(t, err)
