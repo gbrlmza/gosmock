@@ -16,4 +16,6 @@ func TestSimple_AddItem(t *testing.T) {
 
 	assert.Equal(t, "123456", id)
 	assert.NilError(t, err)
+
+	assert.Equal(t, 0, simple.UnusedMocks())
 }

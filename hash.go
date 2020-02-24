@@ -14,5 +14,7 @@ func hash(objs ...interface{}) string {
 		fmt.Fprint(digester, reflect.TypeOf(ob))
 		fmt.Fprint(digester, ob)
 	}
-	return string(digester.Sum(nil))
+	bytes := string(digester.Sum(nil))
+	str := fmt.Sprintf("%x", bytes)
+	return str
 }

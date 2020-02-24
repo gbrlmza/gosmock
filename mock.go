@@ -20,6 +20,11 @@ func (f *MockTool) init() {
 	}
 }
 
+func (f *MockTool) ClearMocks() {
+	f.responses = nil
+	f.calls = nil
+}
+
 func (f *MockTool) Mock(fn interface{}) *Call {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
@@ -41,27 +46,30 @@ func (f *MockTool) Mock(fn interface{}) *Call {
 }
 
 func (f *MockTool) GetMockedResponse(fn interface{}, params ...interface{}) *Call {
-	c := f.Mock(fn).WithParams(params)
+	c := f.Mock(fn).WithParams(params...)
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
 	c.Count = len(f.calls[c.fnName]) + 1
-	responses, ok := f.responses[c.fnName]
-	if !ok || c.Count > len(responses) {
-		panic(fmt.Sprintf("No mocked response available for fn %s", c.fnName))
-	}
+	responses := f.responses[c.fnName]
 
-	// First try to get a mocked response for the given params
+	// Find response with params
 	for i := 0; i < len(responses); i++ {
-		if c.paramsHash == responses[i].paramsHash {
+		if responses[i].hasParams && responses[i].paramsHash == c.paramsHash {
 			f.extractResponse(c, i)
 			return c
 		}
 	}
 
-	// If no mocked response for the given params was found, use the next response in line
-	f.extractResponse(c, 0)
-	return c
+	// Find generic response (without params)
+	for i := 0; i < len(responses); i++ {
+		if !responses[i].hasParams {
+			f.extractResponse(c, i)
+			return c
+		}
+	}
+
+	panic(fmt.Sprintf("no mocked response available for fn %s", c.fnName))
 }
 
 func (f *MockTool) extractResponse(c *Call, i int) {
@@ -73,4 +81,12 @@ func (f *MockTool) extractResponse(c *Call, i int) {
 func (f *MockTool) GetMockedCalls(fn interface{}) []Call {
 	c := f.Mock(fn)
 	return f.calls[c.fnName]
+}
+
+func (f *MockTool) UnusedMocks() int {
+	i := 0
+	for k := range f.responses {
+		i += len(f.responses[k])
+	}
+	return i
 }
