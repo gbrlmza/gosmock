@@ -4,7 +4,7 @@ import "github.com/gbrlmza/gosmock"
 
 // The mocked implementation
 type Simple struct {
-	gosmock.MockTools
+	gosmock.MockTool
 }
 
 func (s *Simple) AddItem(name string, quantity int) (p1 string, p2 error) {

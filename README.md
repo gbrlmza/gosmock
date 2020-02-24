@@ -1,1 +1,2 @@
-# gogmock: Go generic mocking
+# gosmock: go simple mock
+
