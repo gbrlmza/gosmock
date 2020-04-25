@@ -29,5 +29,5 @@ func TestParam_AddItem(t *testing.T) {
 	assert.NilError(t, err)
 
 	// An extra check to ensure that all mocks were used
-	assert.Equal(t, 0, simple.UnusedMocks())
+	assert.Equal(t, true, simple.AllMocksUsed())
 }

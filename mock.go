@@ -36,10 +36,11 @@ func (f *MockTool) Mock(fn interface{}) *Call {
 	}
 
 	c := &Call{
-		mTool:  f,
-		fn:     fn,
-		fnType: fnType,
-		fnName: runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name(),
+		mTool:       f,
+		fn:          fn,
+		fnType:      fnType,
+		fnName:      runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name(),
+		ParamUpdate: make(map[int]interface{}, 0),
 	}
 
 	return c
@@ -74,6 +75,7 @@ func (f *MockTool) GetMockedResponse(fn interface{}, params ...interface{}) *Cal
 
 func (f *MockTool) extractResponse(c *Call, i int) {
 	c.Response = f.responses[c.fnName][i].Response
+	c.ParamUpdate = f.responses[c.fnName][i].ParamUpdate
 	f.calls[c.fnName] = append(f.calls[c.fnName], *c)
 	f.responses[c.fnName] = append(f.responses[c.fnName][:i], f.responses[c.fnName][i+1:]...)
 }
@@ -83,10 +85,6 @@ func (f *MockTool) GetMockedCalls(fn interface{}) []Call {
 	return f.calls[c.fnName]
 }
 
-func (f *MockTool) UnusedMocks() int {
-	i := 0
-	for k := range f.responses {
-		i += len(f.responses[k])
-	}
-	return i
+func (f *MockTool) AllMocksUsed() bool {
+	return len(f.responses) == len(f.calls)
 }
