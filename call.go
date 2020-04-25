@@ -126,20 +126,13 @@ func (c *Call) Fill(params ...interface{}) {
 }
 
 func (c *Call) Update(position int, param interface{}) *Call {
-	// Param must be a pointer
-	pType := reflect.TypeOf(param)
-	if pType == nil || pType.Kind() != reflect.Ptr {
-		panic(fmt.Sprintf("func %s expect fill param %d to be a pointer", c.fnName, position))
-	}
-
 	// Skip if there is no value to update
 	v, ok := c.ParamUpdate[position]
 	if !ok {
 		return c
 	}
 
-	p := reflect.ValueOf(param).Elem().Elem()
-	p.Set(reflect.ValueOf(v))
-
+	reflect.ValueOf(param).Elem().Set(reflect.ValueOf(v))
+	//param = reflect.ValueOf(v)
 	return c
 }
