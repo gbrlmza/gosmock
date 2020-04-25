@@ -132,7 +132,14 @@ func (c *Call) Update(position int, param interface{}) *Call {
 		return c
 	}
 
-	reflect.ValueOf(param).Elem().Set(reflect.ValueOf(v))
-	//param = reflect.ValueOf(v)
+	elem := reflect.ValueOf(param).Elem()
+	kingStr := elem.Kind().String()
+	if elem.Kind() == reflect.Ptr {
+		elem.Elem().Set(reflect.ValueOf(v))
+	} else {
+		elem.Set(reflect.ValueOf(v))
+	}
+
+	_ = kingStr
 	return c
 }
