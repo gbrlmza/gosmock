@@ -49,9 +49,6 @@ func (c *Call) Times(n int) *Call {
 		if paramPos < 0 || c.fnType.NumIn() == 0 || paramPos >= c.fnType.NumIn() {
 			panic(fmt.Sprintf("wrong number of param position %d for update in fn %s", paramPos, c.fnName))
 		}
-		//expected := c.fnType.In(paramPos)
-		//received := reflect.TypeOf(paramVal)
-		//c.compareType(expected, received, false)
 	}
 
 	// Add responses
@@ -82,24 +79,25 @@ func (c *Call) compareType(expected reflect.Type, received reflect.Type, skipNil
 		return
 	}
 
-	// Check zero value
 	// nil is zero value for pointers, interfaces, maps, slices, channels and function types
-	if reflect.Zero(expected) == reflect.ValueOf(received) {
+	ek := expected.Kind()
+	if received == nil && isNullable(expected) {
+		return
+	}
+
+	// Is received value assignable to the expected?
+	if received.AssignableTo(expected) {
 		return
 	}
 
 	// When an interfaced is expected check implementation
-	if expected.Kind() == reflect.Interface && received.Implements(expected) {
+	if (ek == reflect.Interface || ek == reflect.Ptr) && received.Implements(expected) {
 		return
 	}
 
-	// Check if the expected and received values are of the same type
-	expectedKind := expected.Kind()
-	receivedKind := received.Kind()
-	if expectedKind != receivedKind {
-		panic(fmt.Sprintf("func %s expect value to be %s, given %s",
-			c.fnName, expected.Name(), received.Name()))
-	}
+	// Error
+	panic(fmt.Sprintf("func %s expect value to be %s, given %s",
+		c.fnName, expected.Name(), received.Name()))
 }
 
 func (c *Call) Fill(params ...interface{}) {
