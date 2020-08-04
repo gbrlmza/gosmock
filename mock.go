@@ -86,5 +86,11 @@ func (f *MockTool) GetMockedCalls(fn interface{}) []Call {
 }
 
 func (f *MockTool) AllMocksUsed() bool {
-	return len(f.responses) == len(f.calls)
+	for _, r := range f.responses {
+		if len(r) != 0 {
+			return false
+		}
+	}
+
+	return true
 }
