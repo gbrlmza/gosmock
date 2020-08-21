@@ -7,10 +7,11 @@ import (
 	"sync"
 )
 
+var mutex sync.Mutex
+
 type MockTool struct {
 	responses map[string][]Call
 	calls     map[string][]Call
-	mutex     sync.Mutex
 }
 
 func (f *MockTool) init() {
@@ -26,8 +27,8 @@ func (f *MockTool) ClearMocks() {
 }
 
 func (f *MockTool) Mock(fn interface{}) *Call {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 	f.init()
 
 	fnType := reflect.TypeOf(fn)
@@ -48,8 +49,8 @@ func (f *MockTool) Mock(fn interface{}) *Call {
 
 func (f *MockTool) GetMockedResponse(fn interface{}, params ...interface{}) *Call {
 	c := f.Mock(fn).WithParams(params...)
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
+	mutex.Lock()
+	defer mutex.Unlock()
 
 	c.Count = len(f.calls[c.fnName]) + 1
 	responses := f.responses[c.fnName]
