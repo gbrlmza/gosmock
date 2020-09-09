@@ -96,3 +96,7 @@ func TestParam_AddItem(t *testing.T) {
 	assert.Equal(t, 0, simple.UnusedMocks())
 }
 ``` 
+
+## Examples
+
+See more [examples](examples/)

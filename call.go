@@ -105,6 +105,17 @@ func (c *Call) Fill(params ...interface{}) {
 		panic("The numbers of values doesn't match the number of params")
 	}
 
+	// Update params
+	for i, v := range c.ParamUpdate {
+		elem := reflect.ValueOf(c.Params[i]).Elem()
+		if elem.Kind() == reflect.Ptr {
+			elem.Elem().Set(reflect.ValueOf(v))
+		} else {
+			elem.Set(reflect.ValueOf(v))
+		}
+	}
+
+	// Set return values
 	for i, v := range c.Response {
 		// Param must be a pointer
 		pType := reflect.TypeOf(params[i])
@@ -121,21 +132,4 @@ func (c *Call) Fill(params ...interface{}) {
 		param := reflect.ValueOf(params[i]).Elem()
 		param.Set(reflect.ValueOf(v))
 	}
-}
-
-func (c *Call) Update(position int, param interface{}) *Call {
-	// Skip if there is no value to update
-	v, ok := c.ParamUpdate[position]
-	if !ok {
-		return c
-	}
-
-	elem := reflect.ValueOf(param).Elem()
-	if elem.Kind() == reflect.Ptr {
-		elem.Elem().Set(reflect.ValueOf(v))
-	} else {
-		elem.Set(reflect.ValueOf(v))
-	}
-
-	return c
 }
